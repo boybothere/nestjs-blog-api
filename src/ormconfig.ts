@@ -1,4 +1,8 @@
 import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
+import * as dotenv from 'dotenv';
+import { Tag } from "./tag/tag.entity";
+
+dotenv.config();
 
 const config: PostgresConnectionOptions = {
     type: 'postgres',
@@ -6,7 +10,7 @@ const config: PostgresConnectionOptions = {
     port: Number(process.env.DB_PORT),
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
-    entities: [],
+    entities: [Tag],
     synchronize: true
 }
 
