@@ -3,13 +3,16 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectRepository(User) private readonly userRepository: Repository<User>) { }
+    constructor(private prisma: PrismaService) { }
     async createUser(user: CreateUserDto) {
-        const newUser = new User();
-        Object.assign(newUser, user);
-        return await this.userRepository.save(newUser);
+        return await this.prisma.user.create({
+            data: {
+                ...user
+            }
+        })
     }
 }
