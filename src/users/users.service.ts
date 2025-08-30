@@ -2,11 +2,18 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { User } from '@prisma/client';
+import { sign } from 'jsonwebtoken';
+import { ConfigService } from '@nestjs/config';
+
 
 @Injectable()
 export class UsersService {
-    constructor(private prisma: PrismaService) { }
-    async createUser(user: CreateUserDto) {
+    constructor(
+        private prisma: PrismaService,
+        private configService: ConfigService
+    ) { }
+    async createUser(user: CreateUserDto,) {
 
 
         const existingUser = await this.prisma.user.findUnique({
@@ -26,7 +33,25 @@ export class UsersService {
             data: userInfo
         })
         const { password, ...safeUser } = createdUser;
-        return { user: safeUser }
+
+
+
+        return {
+            user: {
+                ...safeUser,
+                token: this.generateToken(createdUser)
+            }
+        }
+    }
+
+    generateToken(user: User): string {
+        return sign(
+            {
+                id: user.id,
+                username: user.username
+            },
+            this.configService.get<string>('JWT_SIGN_SECRET')
+        )
 
     }
 }
